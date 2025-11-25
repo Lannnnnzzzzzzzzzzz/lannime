@@ -56,7 +56,7 @@ function AtoZ({ path }) {
         <li className="font-light">A-Z List</li>
       </ul>
       <div className="flex flex-col gap-y-5 mt-6">
-        <h1 className="font-bold text-2xl text-[#ffbade] max-[478px]:text-[18px]">
+        <h1 className="font-bold text-2xl text-[#10b981] max-[478px]:text-[18px]">
           Sort By Letters
         </h1>
         <div className="flex gap-x-[7px] flex-wrap justify-start gap-y-2 max-md:justify-start">

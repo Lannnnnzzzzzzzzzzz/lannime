@@ -70,7 +70,7 @@ function Category({ path, label }) {
           {loading ? (
             <CategoryCardLoader className="mt-5" />
           ) : page > totalPages ? (
-            <p className="font-bold text-2xl text-[#ffbade] max-[478px]:text-[18px] max-[300px]:leading-6">
+            <p className="font-bold text-2xl text-[#10b981] max-[478px]:text-[18px] max-[300px]:leading-6">
               You came a long way, go back <br className="max-[300px]:hidden" />
               nothing is here
             </p>

@@ -32,7 +32,7 @@ function InfoItem({ label, value, isProducer = true }) {
                     .join("-")
                     .replace(/-+/g, "-")}`}
                   key={index}
-                  className="cursor-pointer hover:text-[#ffbade]"
+                  className="cursor-pointer hover:text-[#10b981]"
                 >
                   {item}
                   {index < value.length - 1 && ", "}
@@ -50,7 +50,7 @@ function InfoItem({ label, value, isProducer = true }) {
                 .split(" ")
                 .join("-")
                 .replace(/-+/g, "-")}`}
-              className="cursor-pointer hover:text-[#ffbade]"
+              className="cursor-pointer hover:text-[#10b981]"
             >
               {value}
             </Link>
@@ -319,7 +319,7 @@ function AnimeInfo({ random = false }) {
                     <Link
                       to={`/genre/${genre.split(" ").join("-")}`}
                       key={index}
-                      className="text-[14px] font-semibold px-2 py-[1px] border border-gray-400 rounded-2xl hover:text-[#ffbade]"
+                      className="text-[14px] font-semibold px-2 py-[1px] border border-gray-400 rounded-2xl hover:text-[#10b981]"
                     >
                       {genre}
                     </Link>
@@ -347,7 +347,7 @@ function AnimeInfo({ random = false }) {
         <div>
           {seasons?.length > 0 && (
             <div className="flex flex-col gap-y-7 mt-8">
-              <h1 className="w-fit text-2xl text-[#ffbade] max-[478px]:text-[18px] font-bold">
+              <h1 className="w-fit text-2xl text-[#10b981] max-[478px]:text-[18px] font-bold">
                 More Seasons
               </h1>
               <div className="flex flex-wrap gap-4 max-[575px]:grid max-[575px]:grid-cols-3 max-[575px]:gap-3 max-[480px]:grid-cols-2">
@@ -357,14 +357,14 @@ function AnimeInfo({ random = false }) {
                     key={index}
                     className={`relative w-[20%] h-[60px] rounded-lg overflow-hidden cursor-pointer group ${
                       currentId === String(season.id)
-                        ? "border border-[#ffbade]"
+                        ? "border border-[#10b981]"
                         : ""
                     } max-[1200px]:w-[140px] max-[575px]:w-full`}
                   >
                     <p
-                      className={`text-[13px] text-center font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full px-2 z-30 line-clamp-2 group-hover:text-[#ffbade] ${
+                      className={`text-[13px] text-center font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full px-2 z-30 line-clamp-2 group-hover:text-[#10b981] ${
                         currentId === String(season.id)
-                          ? "text-[#ffbade]"
+                          ? "text-[#10b981]"
                           : "text-white"
                       }`}
                     >

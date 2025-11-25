@@ -113,10 +113,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               { name: "OVAs", path: "/ova" },
               { name: "ONAs", path: "/ona" },
               { name: "Specials", path: "/special" },
-              {
-                name: "Join Telegram",
-                path: "https://t.me/zenime_discussion",
-              },
             ].map((item, index) => (
               <li
                 key={index}

@@ -13,7 +13,6 @@ import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
-import { FaTelegramPlane } from "react-icons/fa";
 
 function Navbar() {
   const location = useLocation();
@@ -126,16 +125,6 @@ function Navbar() {
               <p className="whitespace-nowrap text-[15px]">Anime name</p>
             </div>
           </div>
-          <Link
-            to="https://t.me/zenime_discussion"
-            className="flex flex-col gap-y-1 items-center cursor-pointer"
-          >
-            <FaTelegramPlane
-              // icon={faTelegram}
-              className="text-xl font-bold text-[#ffbade]"
-            />
-            <p className="text-[15px] mb-[1px] text-white">Join Telegram</p>
-          </Link>
         </div>
         <MobileSearch />
       </nav>

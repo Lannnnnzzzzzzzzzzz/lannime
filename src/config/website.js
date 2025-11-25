@@ -1,3 +1,3 @@
-const website_name = "Zenime";
+const website_name = "Lanime";
 
 export default website_name;

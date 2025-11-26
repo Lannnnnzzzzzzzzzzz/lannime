@@ -491,7 +491,9 @@ export default function Player({
         sub.file = `${proxy}${encodedUrl}&headers=${encodedHeaders}`;
       }
 
-      const defaultSubtitle = subs?.find((sub) => sub.label.toLowerCase() === "english");
+      const defaultSubtitle =
+        subs?.find((sub) => sub.label.toLowerCase().includes("indonesian") || sub.label.toLowerCase().includes("indo")) ||
+        subs?.find((sub) => sub.label.toLowerCase() === "english");
       if (defaultSubtitle) {
         art.subtitle.switch(defaultSubtitle.file, {
           name: defaultSubtitle.label,

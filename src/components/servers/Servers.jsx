@@ -14,6 +14,7 @@ function Servers({
   activeServerId,
   setActiveServerId,
   serverLoading,
+  subIdServers,
 }) {
   const subServers = servers?.filter((server) => server.type === "sub") || [];
   const dubServers = servers?.filter((server) => server.type === "dub") || [];
@@ -149,6 +150,34 @@ function Servers({
                       className={`px-6 py-[5px] rounded-lg cursor-pointer ${
                         activeServerId === item?.data_id
                           ? "bg-[#ffbade] text-black"
+                          : "bg-[#373646] text-white"
+                      } max-[700px]:px-3`}
+                      onClick={() => handleServerSelect(item)}
+                    >
+                      <p className="text-[13px] font-semibold">
+                        {item.serverName}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {subIdServers && subIdServers.length > 0 && (
+              <div className="servers px-2 flex items-center flex-wrap ml-2 max-[600px]:py-2 h-full">
+                <div className="flex items-center gap-x-2">
+                  <FontAwesomeIcon
+                    icon={faClosedCaptioning}
+                    className="text-[#10b981] text-[13px]"
+                  />
+                  <p className="font-bold text-[14px]">SUB ID:</p>
+                </div>
+                <div className="flex gap-x-[7px] ml-8 flex-wrap">
+                  {subIdServers.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`px-6 py-[5px] rounded-lg cursor-pointer ${
+                        activeServerId === item?.data_id
+                          ? "bg-[#10b981] text-white"
                           : "bg-[#373646] text-white"
                       } max-[700px]:px-3`}
                       onClick={() => handleServerSelect(item)}

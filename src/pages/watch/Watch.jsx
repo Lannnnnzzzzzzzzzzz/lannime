@@ -72,6 +72,7 @@ export default function Watch() {
     activeServerId,
     setActiveServerId,
     servers,
+    subIdServers,
     serverLoading,
   } = useWatch(animeId, initialEpisodeId);
   const {
@@ -349,6 +350,7 @@ export default function Watch() {
                 activeServerId={activeServerId}
                 setActiveServerId={setActiveServerId}
                 serverLoading={serverLoading}
+                subIdServers={subIdServers}
               />
               {seasons?.length > 0 && (
                 <div className="flex flex-col gap-y-2 bg-[#11101A] p-4">

@@ -6,6 +6,7 @@ import getEpisodes from "@/src/utils/getEpisodes.utils";
 import getNextEpisodeSchedule from "../utils/getNextEpisodeSchedule.utils";
 import getServers from "../utils/getServers.utils";
 import getStreamInfo from "../utils/getStreamInfo.utils";
+import { getSamehadakuEpisode } from "@/src/utils/getSamehadaku.utils";
 
 export const useWatch = (animeId, initialEpisodeId) => {
   const [error, setError] = useState(null);
@@ -30,6 +31,7 @@ export const useWatch = (animeId, initialEpisodeId) => {
   const [activeServerName, setActiveServerName] = useState(null);
   const [serverLoading, setServerLoading] = useState(true);
   const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
+  const [subIdServers, setSubIdServers] = useState([]);
   const isServerFetchInProgress = useRef(false);
   const isStreamFetchInProgress = useRef(false);
 
@@ -203,13 +205,28 @@ export const useWatch = (animeId, initialEpisodeId) => {
     if (
       !episodeId ||
       !activeServerId ||
-      !servers ||
+      (!servers && !subIdServers) ||
       isServerFetchInProgress.current ||
       isStreamFetchInProgress.current
     )
       return;
+
+    const subIdServer = subIdServers.find((srv) => srv.data_id === activeServerId);
+    if (subIdServer) {
+      setBuffering(true);
+      setStreamUrl(subIdServer.streamUrl);
+      setStreamInfo({ streamingLink: { link: { file: subIdServer.streamUrl } } });
+      setSubtitles([]);
+      setThumbnail(null);
+      setIntro(null);
+      setOutro(null);
+      setBuffering(false);
+      return;
+    }
+
+    if (!servers) return;
+
     const iframeServers = [];
-    // const iframeServers = ["hd-1", "hd-4", "vidstreaming", "vidcloud", "douvideo"];
 
     if (iframeServers.includes(activeServerName?.toLowerCase()) && !serverLoading) {
       setBuffering(false);
@@ -252,7 +269,41 @@ export const useWatch = (animeId, initialEpisodeId) => {
       }
     };
     fetchStreamInfo();
-  }, [episodeId, activeServerId, servers]);
+  }, [episodeId, activeServerId, servers, subIdServers]);
+
+  useEffect(() => {
+    if (!animeInfo || !episodeId || !activeEpisodeNum) return;
+
+    const fetchSamehadakuServers = async () => {
+      try {
+        const animeSlug = animeInfo?.title?.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        const episodeSlug = `${animeSlug}-episode-${activeEpisodeNum}`;
+
+        const samehadakuData = await getSamehadakuEpisode(episodeSlug);
+
+        if (samehadakuData?.stream) {
+          const idServers = Object.entries(samehadakuData.stream)
+            .filter(([quality]) => quality !== 'download')
+            .flatMap(([quality, servers]) =>
+              servers.map((server, index) => ({
+                type: "subid",
+                data_id: `subid_${quality}_${index}`,
+                server_id: `subid_${quality}_${index}`,
+                serverName: `${quality.toUpperCase()} - ${server.name || index + 1}`,
+                streamUrl: server.src,
+                quality: quality,
+              }))
+            );
+
+          setSubIdServers(idServers);
+        }
+      } catch (err) {
+        console.error("Error fetching Samehadaku servers:", err);
+      }
+    };
+
+    fetchSamehadakuServers();
+  }, [animeInfo, activeEpisodeNum, episodeId]);
 
   return {
     error,
@@ -266,6 +317,7 @@ export const useWatch = (animeId, initialEpisodeId) => {
     totalEpisodes,
     seasons,
     servers,
+    subIdServers,
     streamUrl,
     isFullOverview,
     setIsFullOverview,

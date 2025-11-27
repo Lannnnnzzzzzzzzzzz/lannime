@@ -15,6 +15,7 @@ import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
+import { getSamehadakuAnime } from "@/src/utils/getSamehadaku.utils";
 
 function InfoItem({ label, value, isProducer = true }) {
   return (
@@ -83,6 +84,8 @@ function AnimeInfo({ random = false }) {
   const id = random ? null : paramId;
   const [isFull, setIsFull] = useState(false);
   const [animeInfo, setAnimeInfo] = useState(null);
+  const [indoInfo, setIndoInfo] = useState(null);
+  const [showIndoVersion, setShowIndoVersion] = useState(false);
   const [seasons, setSeasons] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,6 +114,22 @@ function AnimeInfo({ random = false }) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [id, random]);
+
+  useEffect(() => {
+    if (!animeInfo) return;
+
+    const fetchIndoInfo = async () => {
+      try {
+        const animeSlug = animeInfo.title?.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        const data = await getSamehadakuAnime(animeSlug);
+        setIndoInfo(data);
+      } catch (err) {
+        console.error("Error fetching Indonesian info:", err);
+      }
+    };
+
+    fetchIndoInfo();
+  }, [animeInfo]);
   useEffect(() => {
     if (animeInfo && location.pathname === `/${animeInfo.id}`) {
       document.title = `Watch ${animeInfo.title} English Sub/Dub online Free on ${website_name}`;
@@ -194,9 +213,19 @@ function AnimeInfo({ random = false }) {
                 {language === "EN" ? title : japanese_title}
               </p>
             </ul>
-            <h1 className="text-4xl font-semibold max-[1200px]:text-3xl max-[575px]:text-2xl max-[575px]:text-center  max-[575px]:leading-7">
-              {language === "EN" ? title : japanese_title}
-            </h1>
+            <div className="flex items-center gap-x-3">
+              <h1 className="text-4xl font-semibold max-[1200px]:text-3xl max-[575px]:text-2xl max-[575px]:text-center  max-[575px]:leading-7">
+                {language === "EN" ? title : japanese_title}
+              </h1>
+              {indoInfo && (
+                <button
+                  onClick={() => setShowIndoVersion(!showIndoVersion)}
+                  className="text-[11px] px-2 py-1 bg-[#10b981] text-white rounded-md hover:bg-[#059669] transition-colors"
+                >
+                  {showIndoVersion ? "See in Eng" : "See in Ind"}
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap w-fit gap-x-[2px] mt-3 max-[575px]:mx-auto max-[575px]:mt-0 gap-y-[3px] max-[320px]:justify-center">
               {tags.map(
                 ({ condition, icon, bgColor, text }, index) =>
@@ -244,13 +273,13 @@ function AnimeInfo({ random = false }) {
                 <p className="text-lg font-medium">Not released</p>
               </Link>
             )}
-            {info?.Overview && (
+            {(showIndoVersion ? indoInfo?.synopsis : info?.Overview) && (
               <div className="text-[14px] mt-2 max-[575px]:hidden">
-                {info.Overview.length > 270 ? (
+                {(showIndoVersion ? indoInfo?.synopsis : info.Overview).length > 270 ? (
                   <>
                     {isFull
-                      ? info.Overview
-                      : `${info.Overview.slice(0, 270)}...`}
+                      ? (showIndoVersion ? indoInfo?.synopsis : info.Overview)
+                      : `${(showIndoVersion ? indoInfo?.synopsis : info.Overview).slice(0, 270)}...`}
                     <span
                       className="text-[13px] font-bold hover:cursor-pointer"
                       onClick={() => setIsFull(!isFull)}
@@ -259,7 +288,7 @@ function AnimeInfo({ random = false }) {
                     </span>
                   </>
                 ) : (
-                  info.Overview
+                  (showIndoVersion ? indoInfo?.synopsis : info.Overview)
                 )}
               </div>
             )}
@@ -287,11 +316,13 @@ function AnimeInfo({ random = false }) {
         </div>
         <div className="bg-[#4c4b57c3] flex items-center px-8 max-[1200px]:py-10 max-[1200px]:bg-[#363544e0] max-[575px]:p-4">
           <div className="w-full flex flex-col h-fit gap-y-3">
-            {info?.Overview && (
+            {(showIndoVersion ? indoInfo?.synopsis : info?.Overview) && (
               <div className="custom-xl:hidden max-h-[150px] overflow-hidden">
                 <p className="text-[13px] font-bold">Overview:</p>
                 <div className="max-h-[110px] mt-2 overflow-y-scroll">
-                  <p className="text-[14px] font-light">{info.Overview}</p>
+                  <p className="text-[14px] font-light">
+                    {showIndoVersion ? indoInfo?.synopsis : info.Overview}
+                  </p>
                 </div>
               </div>
             )}

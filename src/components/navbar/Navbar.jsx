@@ -8,28 +8,20 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useAuth } from "@/src/context/AuthContext";
 import { Link, useLocation } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
-import UserMenu from "../auth/UserMenu";
-import Login from "../auth/Login";
-import Register from "../auth/Register";
-import NotificationBell from "../notifications/NotificationBell";
 
 function Navbar() {
   const location = useLocation();
   const { language, toggleLanguage } = useLanguage();
-  const { user } = useAuth();
   const [isNotHomePage, setIsNotHomePage] = useState(
     location.pathname !== "/" && location.pathname !== "/home"
   );
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -133,50 +125,10 @@ function Navbar() {
               <p className="whitespace-nowrap text-[15px]">Anime name</p>
             </div>
           </div>
-
-          {user ? (
-            <>
-              <NotificationBell />
-              <UserMenu />
-            </>
-          ) : (
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowLogin(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold transition"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setShowRegister(true)}
-                className="px-4 py-2 bg-transparent border border-blue-600 hover:bg-blue-600 rounded text-white font-semibold transition"
-              >
-                Register
-              </button>
-            </div>
-          )}
         </div>
         <MobileSearch />
       </nav>
       <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
-      {showLogin && (
-        <Login
-          onClose={() => setShowLogin(false)}
-          onSwitchToRegister={() => {
-            setShowLogin(false);
-            setShowRegister(true);
-          }}
-        />
-      )}
-      {showRegister && (
-        <Register
-          onClose={() => setShowRegister(false)}
-          onSwitchToLogin={() => {
-            setShowRegister(false);
-            setShowLogin(true);
-          }}
-        />
-      )}
     </SearchProvider>
   );
 }

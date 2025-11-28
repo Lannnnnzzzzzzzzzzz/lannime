@@ -16,6 +16,7 @@ import { useLanguage } from "@/src/context/LanguageContext";
 import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { getSamehadakuAnime } from "@/src/utils/getSamehadaku.utils";
+import { translateText } from "@/src/utils/translateText.utils";
 
 function InfoItem({ label, value, isProducer = true }) {
   return (
@@ -86,6 +87,8 @@ function AnimeInfo({ random = false }) {
   const [animeInfo, setAnimeInfo] = useState(null);
   const [indoInfo, setIndoInfo] = useState(null);
   const [showIndoVersion, setShowIndoVersion] = useState(false);
+  const [translatedDescription, setTranslatedDescription] = useState(null);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [seasons, setSeasons] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -130,6 +133,27 @@ function AnimeInfo({ random = false }) {
 
     fetchIndoInfo();
   }, [animeInfo]);
+
+  const handleTranslate = async () => {
+    if (translatedDescription) {
+      setShowIndoVersion(!showIndoVersion);
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const translated = await translateText(animeInfo.id, animeInfo.animeInfo.Overview, 'description');
+      if (translated) {
+        setTranslatedDescription(translated);
+        setShowIndoVersion(true);
+      }
+    } catch (err) {
+      console.error("Translation error:", err);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   useEffect(() => {
     if (animeInfo && location.pathname === `/${animeInfo.id}`) {
       document.title = `Watch ${animeInfo.title} English Sub/Dub online Free on ${website_name}`;
@@ -217,14 +241,13 @@ function AnimeInfo({ random = false }) {
               <h1 className="text-4xl font-semibold max-[1200px]:text-3xl max-[575px]:text-2xl max-[575px]:text-center  max-[575px]:leading-7">
                 {language === "EN" ? title : japanese_title}
               </h1>
-              {indoInfo && (
-                <button
-                  onClick={() => setShowIndoVersion(!showIndoVersion)}
-                  className="text-[11px] px-2 py-1 bg-[#10b981] text-white rounded-md hover:bg-[#059669] transition-colors"
-                >
-                  {showIndoVersion ? "See in Eng" : "See in Ind"}
-                </button>
-              )}
+              <button
+                onClick={handleTranslate}
+                disabled={isTranslating}
+                className="text-[11px] px-3 py-1.5 bg-[#FFBADE] text-black font-semibold rounded-md hover:bg-[#ff9ec9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {isTranslating ? "Translating..." : showIndoVersion ? "Original (EN)" : "Terjemahkan (ID)"}
+              </button>
             </div>
             <div className="flex flex-wrap w-fit gap-x-[2px] mt-3 max-[575px]:mx-auto max-[575px]:mt-0 gap-y-[3px] max-[320px]:justify-center">
               {tags.map(
@@ -273,13 +296,13 @@ function AnimeInfo({ random = false }) {
                 <p className="text-lg font-medium">Not released</p>
               </Link>
             )}
-            {(showIndoVersion ? indoInfo?.synopsis : info?.Overview) && (
+            {(showIndoVersion ? translatedDescription : info?.Overview) && (
               <div className="text-[14px] mt-2 max-[575px]:hidden">
-                {(showIndoVersion ? indoInfo?.synopsis : info.Overview).length > 270 ? (
+                {(showIndoVersion ? translatedDescription : info.Overview).length > 270 ? (
                   <>
                     {isFull
-                      ? (showIndoVersion ? indoInfo?.synopsis : info.Overview)
-                      : `${(showIndoVersion ? indoInfo?.synopsis : info.Overview).slice(0, 270)}...`}
+                      ? (showIndoVersion ? translatedDescription : info.Overview)
+                      : `${(showIndoVersion ? translatedDescription : info.Overview).slice(0, 270)}...`}
                     <span
                       className="text-[13px] font-bold hover:cursor-pointer"
                       onClick={() => setIsFull(!isFull)}
@@ -288,7 +311,7 @@ function AnimeInfo({ random = false }) {
                     </span>
                   </>
                 ) : (
-                  (showIndoVersion ? indoInfo?.synopsis : info.Overview)
+                  (showIndoVersion ? translatedDescription : info.Overview)
                 )}
               </div>
             )}
@@ -316,12 +339,12 @@ function AnimeInfo({ random = false }) {
         </div>
         <div className="bg-[#4c4b57c3] flex items-center px-8 max-[1200px]:py-10 max-[1200px]:bg-[#363544e0] max-[575px]:p-4">
           <div className="w-full flex flex-col h-fit gap-y-3">
-            {(showIndoVersion ? indoInfo?.synopsis : info?.Overview) && (
+            {(showIndoVersion ? translatedDescription : info?.Overview) && (
               <div className="custom-xl:hidden max-h-[150px] overflow-hidden">
                 <p className="text-[13px] font-bold">Overview:</p>
                 <div className="max-h-[110px] mt-2 overflow-y-scroll">
                   <p className="text-[14px] font-light">
-                    {showIndoVersion ? indoInfo?.synopsis : info.Overview}
+                    {showIndoVersion ? translatedDescription : info.Overview}
                   </p>
                 </div>
               </div>

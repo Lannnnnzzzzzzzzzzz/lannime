@@ -15,6 +15,12 @@ import Search from "./pages/search/Search";
 import Watch from "./pages/watch/Watch";
 import Producer from "./components/producer/Producer";
 import SplashScreen from "./components/splashscreen/SplashScreen";
+import Profile from "./pages/profile/Profile";
+import Settings from "./pages/settings/Settings";
+import Stats from "./pages/stats/Stats";
+import Achievements from "./pages/achievements/Achievements";
+import Leaderboard from "./pages/leaderboard/Leaderboard";
+import Admin from "./pages/admin/Admin";
 
 function App() {
   const location = useLocation();
@@ -60,6 +66,12 @@ function App() {
             ))}
             <Route path="/producer/:id" element={<Producer />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/stats" element={<Stats />} />
+            <Route path="/achievements" element={<Achievements />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/admin" element={<Admin />} />
             {/* Catch-all route for 404 */}
             <Route path="*" element={<Error error="404" />} />
           </Routes>

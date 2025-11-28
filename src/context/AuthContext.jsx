@@ -17,18 +17,25 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
 
-        if (session?.user) {
-          await fetchProfile(session.user.id);
+        if (mounted) {
+          setUser(session?.user ?? null);
+
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
         }
       } catch (error) {
         console.error('Error loading session:', error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -36,17 +43,22 @@ export const AuthProvider = ({ children }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       (async () => {
-        setUser(session?.user ?? null);
+        if (mounted) {
+          setUser(session?.user ?? null);
 
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          } else {
+            setProfile(null);
+          }
         }
       })();
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchProfile = async (userId) => {
@@ -173,6 +185,10 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     fetchProfile,
   };
+
+  if (loading) {
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

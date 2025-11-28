@@ -1,17 +1,23 @@
-import { FaChevronLeft } from "react-icons/fa";
+import { FaChevronLeft, FaSignInAlt } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faRandom } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useEffect } from "react";
+import { useAuth } from "@/src/context/AuthContext";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   cleanupScrollbar,
   toggleScrollbar,
 } from "@/src/helper/toggleScrollbar";
+import Login from "../auth/Login";
+import Register from "../auth/Register";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { language, toggleLanguage } = useLanguage();
+  const { user } = useAuth();
   const location = useLocation();
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     toggleScrollbar(isOpen);
@@ -128,8 +134,45 @@ const Sidebar = ({ isOpen, onClose }) => {
               </li>
             ))}
           </ul>
+
+          {!user && (
+            <div className="mt-8 px-4 w-full space-y-3">
+              <button
+                onClick={() => setShowLogin(true)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition"
+              >
+                <FaSignInAlt />
+                Login
+              </button>
+              <button
+                onClick={() => setShowRegister(true)}
+                className="w-full px-4 py-3 bg-transparent border-2 border-blue-600 hover:bg-blue-600 rounded-lg text-white font-semibold transition"
+              >
+                Register
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {showLogin && (
+        <Login
+          onClose={() => setShowLogin(false)}
+          onSwitchToRegister={() => {
+            setShowLogin(false);
+            setShowRegister(true);
+          }}
+        />
+      )}
+      {showRegister && (
+        <Register
+          onClose={() => setShowRegister(false)}
+          onSwitchToLogin={() => {
+            setShowRegister(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
     </>
   );
 };

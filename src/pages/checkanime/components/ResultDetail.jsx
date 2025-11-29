@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loader from './Loader';
-import axios from 'axios';
+import getSearch from '@/src/utils/getSearch.utils';
 
 const ResultDetail = ({ result, anilistInfo, isLoading }) => {
     const navigate = useNavigate();
@@ -14,15 +14,11 @@ const ResultDetail = ({ result, anilistInfo, isLoading }) => {
 
         try {
             setSearching(true);
-            const response = await axios.get(`https://hianime.to/search?keyword=${encodeURIComponent(title)}`);
-            const html = response.data;
+            const results = await getSearch(title, 1);
 
-            const regex = /href="\/([^"]+)"/;
-            const match = html.match(regex);
-
-            if (match && match[1]) {
-                const slug = match[1];
-                navigate(`/${slug}`);
+            if (results && results.length > 0) {
+                const firstResult = results[0];
+                navigate(`/${firstResult.id}`);
             } else {
                 navigate(`/search?keyword=${encodeURIComponent(title)}`);
             }

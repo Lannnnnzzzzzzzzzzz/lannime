@@ -30,7 +30,6 @@ import website_name from "@/src/config/website";
 import getChapterStyles from "./getChapterStyle";
 import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
 import artplayerPluginUploadSubtitle from "./artplayerPluginUploadSubtitle";
-import { useWatchProgress } from "@/src/hooks/useWatchProgress";
 
 Artplayer.LOG_VERSION = false;
 Artplayer.CONTEXTMENU = false;
@@ -40,8 +39,8 @@ const KEY_CODES = {
   I: "KeyI",
   F: "KeyF",
   V: "KeyV",
-  SPACE: "Space", 
-  SPACE_LEGACY: "Spacebar", 
+  SPACE: "Space",
+  SPACE_LEGACY: "Spacebar",
   ARROW_UP: "ArrowUp",
   ARROW_DOWN: "ArrowDown",
   ARROW_RIGHT: "ArrowRight",
@@ -66,9 +65,7 @@ export default function Player({
 }) {
   const artRef = useRef(null);
   const leftAtRef = useRef(0);
-  const durationRef = useRef(0);
   const boundKeydownRef = useRef(null);
-  const { saveProgress, getProgress } = useWatchProgress();
   const proxy = import.meta.env.VITE_PROXY_URL;
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
@@ -467,26 +464,19 @@ export default function Player({
     ];
     fullscreenEvents.forEach((ev) => document.addEventListener(ev, onFullscreenChange));
 
-    art.on("ready", async () => {
+    art.on("ready", () => {
       try {
         container.focus();
       } catch (e) {
         // ignore
       }
 
-      try {
-        const progressData = await getProgress(20);
-        const currentEntry = progressData.find((item) => item.episodeId === episodeId);
-        if (currentEntry?.leftAt && currentEntry.leftAt > 5) {
-          art.currentTime = currentEntry.leftAt;
-        }
-      } catch (err) {
-        console.error("Error loading watch progress:", err);
-      }
+      const continueWatchingList = JSON.parse(localStorage.getItem("continueWatching")) || [];
+      const currentEntry = continueWatchingList.find((item) => item.episodeId === episodeId);
+      if (currentEntry?.leftAt) art.currentTime = currentEntry.leftAt;
 
       art.on("video:timeupdate", () => {
         leftAtRef.current = Math.floor(art.currentTime);
-        durationRef.current = Math.floor(art.duration);
       });
 
       setTimeout(() => {
@@ -625,19 +615,28 @@ export default function Player({
       }
       if (fullscreenRefocusTimeout) clearTimeout(fullscreenRefocusTimeout);
 
-      if (animeInfo?.data_id && leftAtRef.current > 0) {
-        saveProgress({
-          anime_id: animeInfo.id,
-          data_id: animeInfo.data_id,
+      try {
+        const continueWatching = JSON.parse(localStorage.getItem("continueWatching")) || [];
+        const newEntry = {
+          id: animeInfo?.id,
+          data_id: animeInfo?.data_id,
           episodeId,
           episodeNum,
-          adultContent: animeInfo.adultContent,
-          poster: animeInfo.poster,
-          title: animeInfo.title,
-          japanese_title: animeInfo.japanese_title,
-          progress: leftAtRef.current,
-          duration: durationRef.current
-        }).catch(err => console.error("Error saving progress on cleanup:", err));
+          adultContent: animeInfo?.adultContent,
+          poster: animeInfo?.poster,
+          title: animeInfo?.title,
+          japanese_title: animeInfo?.japanese_title,
+          leftAt: leftAtRef.current,
+          updatedAt: Date.now(),
+        };
+
+        if (!newEntry.data_id) return;
+
+        const filtered = continueWatching.filter((item) => item.data_id !== newEntry.data_id);
+        filtered.unshift(newEntry);
+        localStorage.setItem("continueWatching", JSON.stringify(filtered));
+      } catch (err) {
+        console.error("Failed to save continueWatching:", err);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

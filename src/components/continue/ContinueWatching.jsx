@@ -9,37 +9,28 @@ import { FaHistory, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
-import { useWatchProgress } from "@/src/hooks/useWatchProgress";
 
 const ContinueWatching = () => {
   const [watchList, setWatchList] = useState([]);
   const { language } = useLanguage();
-  const { getProgress, removeProgress } = useWatchProgress();
   const swiperRef = useRef(null);
 
   useEffect(() => {
-    const loadWatchList = async () => {
-      const data = await getProgress(20);
-      setWatchList(data);
-    };
-    loadWatchList();
-  }, [getProgress]);
+    const data = JSON.parse(localStorage.getItem("continueWatching") || "[]");
+    data.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    setWatchList(data);
+  }, []);
 
   const memoizedWatchList = useMemo(() => watchList, [watchList]);
 
-  const removeFromWatchList = async (episodeId) => {
-    await removeProgress(episodeId);
-    setWatchList((prevList) =>
-      prevList.filter((item) => item.episodeId !== episodeId)
-    );
-  };
-
-  const formatTimeAgo = (timestamp) => {
-    const seconds = Math.floor((Date.now() - timestamp) / 1000);
-    if (seconds < 60) return 'Just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
+  const removeFromWatchList = (episodeId) => {
+    setWatchList((prevList) => {
+      const updatedList = prevList.filter(
+        (item) => item.episodeId !== episodeId
+      );
+      localStorage.setItem("continueWatching", JSON.stringify(updatedList));
+      return updatedList;
+    });
   };
 
   if (memoizedWatchList.length === 0) return null;
@@ -128,17 +119,6 @@ const ContinueWatching = () => {
                   <p className="text-gray-300 text-sm font-semibold text-left max-[450px]:text-[12px]">
                     Episode {item.episodeNum}
                   </p>
-                  <div className="flex items-center gap-x-2">
-                    <div className="flex-grow h-1 bg-gray-600 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#FFBADE] rounded-full transition-all"
-                        style={{ width: `${Math.min(item.progressPercent || 0, 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-gray-400 whitespace-nowrap">
-                      {formatTimeAgo(item.updatedAt)}
-                    </span>
-                  </div>
                 </div>
               </div>
             </SwiperSlide>

@@ -10,23 +10,43 @@ const ResultDetail = ({ result, anilistInfo, isLoading }) => {
     const handleWatchNow = async () => {
         if (!anilistInfo) return;
 
-        const title = anilistInfo.title.english || anilistInfo.title.romaji;
-
         try {
             setSearching(true);
-            const response = await getSearch(title, 1);
-            console.log('Search response:', response);
 
-            if (response && response.data && response.data.length > 0) {
-                const firstResult = response.data[0];
-                console.log('First result:', firstResult);
-                navigate(`/${firstResult.id}`);
+            const titles = [
+                anilistInfo.title.english,
+                anilistInfo.title.romaji,
+                anilistInfo.title.native
+            ].filter(Boolean);
+
+            let foundResult = null;
+
+            for (const title of titles) {
+                try {
+                    const response = await getSearch(title, 1);
+                    console.log(`Search attempt with "${title}":`, response);
+
+                    if (response && response.data && response.data.length > 0) {
+                        foundResult = response.data[0];
+                        console.log('Found result:', foundResult);
+                        break;
+                    }
+                } catch (err) {
+                    console.error(`Error searching with title "${title}":`, err);
+                    continue;
+                }
+            }
+
+            if (foundResult) {
+                navigate(`/${foundResult.id}`);
             } else {
-                navigate(`/search?keyword=${encodeURIComponent(title)}`);
+                const fallbackTitle = anilistInfo.title.english || anilistInfo.title.romaji;
+                navigate(`/search?keyword=${encodeURIComponent(fallbackTitle)}`);
             }
         } catch (error) {
-            console.error('Error searching anime:', error);
-            navigate(`/search?keyword=${encodeURIComponent(title)}`);
+            console.error('Error in handleWatchNow:', error);
+            const fallbackTitle = anilistInfo.title.english || anilistInfo.title.romaji;
+            navigate(`/search?keyword=${encodeURIComponent(fallbackTitle)}`);
         } finally {
             setSearching(false);
         }

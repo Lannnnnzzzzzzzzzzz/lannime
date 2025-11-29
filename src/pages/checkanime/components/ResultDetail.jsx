@@ -14,10 +14,12 @@ const ResultDetail = ({ result, anilistInfo, isLoading }) => {
 
         try {
             setSearching(true);
-            const results = await getSearch(title, 1);
+            const response = await getSearch(title, 1);
+            console.log('Search response:', response);
 
-            if (results && results.length > 0) {
-                const firstResult = results[0];
+            if (response && response.data && response.data.length > 0) {
+                const firstResult = response.data[0];
+                console.log('First result:', firstResult);
                 navigate(`/${firstResult.id}`);
             } else {
                 navigate(`/search?keyword=${encodeURIComponent(title)}`);

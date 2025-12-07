@@ -16,7 +16,6 @@ import Watch from "./pages/watch/Watch";
 import Producer from "./components/producer/Producer";
 import SplashScreen from "./components/splashscreen/SplashScreen";
 import CheckAnime from "./pages/checkanime/CheckAnime";
-import TestEmbed from "./pages/TestEmbed";
 
 function App() {
   const location = useLocation();
@@ -63,7 +62,6 @@ function App() {
             <Route path="/producer/:id" element={<Producer />} />
             <Route path="/search" element={<Search />} />
             <Route path="/check-anime" element={<CheckAnime />} />
-            <Route path="/test-embed" element={<TestEmbed />} />
             {/* Catch-all route for 404 */}
             <Route path="*" element={<Error error="404" />} />
           </Routes>
